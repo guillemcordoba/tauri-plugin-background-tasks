@@ -7,11 +7,17 @@ import app.tauri.annotation.TauriPlugin
 import app.tauri.plugin.JSObject
 import app.tauri.plugin.Plugin
 import app.tauri.plugin.Invoke
+import app.tauri.plugin.Channel
 import androidx.work.Data
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import androidx.work.ExistingPeriodicWorkPolicy
 import java.util.concurrent.TimeUnit
+
+@InvokeArg
+class SetupChannelArgs {
+    lateinit var handler: Channel
+}
 
 @InvokeArg
 class ScheduleBackgroundTaskArgs {
@@ -21,6 +27,18 @@ class ScheduleBackgroundTaskArgs {
 
 @TauriPlugin
 class BackgroundTasksPlugin(private val activity: Activity): Plugin(activity) {
+
+    companion object {
+        var channel: Channel? = null
+    }
+
+    @Command
+    fun setupChannel(invoke: Invoke) {
+        val args = invoke.parseArgs(SetupChannelArgs::class.java)
+        BackgroundTasksPlugin.channel = args.handler
+        invoke.resolve()
+    }
+
     @Command
     fun scheduleBackgroundTask(invoke: Invoke) {
         val args = invoke.parseArgs(ScheduleBackgroundTaskArgs::class.java)
@@ -36,8 +54,7 @@ class BackgroundTasksPlugin(private val activity: Activity): Plugin(activity) {
             .build()
         WorkManager.getInstance(activity).enqueueUniquePeriodicWork(args.label, ExistingPeriodicWorkPolicy.UPDATE, work)
         
-        val ret = JSObject()
         // ret.put("value", implementation.pong(args.value ?: "default value :("))
-        invoke.resolve(ret)
+        invoke.resolve()
     }
 }

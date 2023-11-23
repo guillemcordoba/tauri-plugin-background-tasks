@@ -11,8 +11,6 @@ import app.tauri.plugin.JSObject
 
 class RunnerWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     override fun doWork(): Result {
-        Log.e("[RUNNER WORKER for]", "EXCEPTION")
-
         try {
             val label = this.inputData.getString("label") ?: ""
 
@@ -20,15 +18,10 @@ class RunnerWorker(context: Context, workerParams: WorkerParameters) : Worker(co
                 throw Exception("label is empty")
             }
 
-            val runnerConfigObj = JSObject()
-            runnerConfigObj.put("label", label)
-            runnerConfigObj.put("autoStart", false)
-            runnerConfigObj.put("repeats", false)
-            runnerConfigObj.put("interval", 0)
-
-           // val config = RunnerConfig(runnerConfigObj)
-
             runBlocking {
+                val event = JSObject()
+                event.put("label", label)
+                BackgroundTasksPlugin.channel?.send(event)
               //  val impl = BackgroundRunner.getInstance(this@RunnerWorker.applicationContext)
               //  impl.execute(this@RunnerWorker.applicationContext, config, JSObject())
             }
