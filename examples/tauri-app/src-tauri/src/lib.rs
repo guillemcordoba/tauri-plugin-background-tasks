@@ -16,16 +16,16 @@ pub fn run() {
             let h = app.handle().clone();
 
             if let PermissionState::Granted = permissions_state {
+                h.notification()
+                    .create_channel(Channel::builder("test", "test").build())
+                    .expect("Failed to create channel");
                 #[cfg(mobile)]
                 let r = app.background_tasks().schedule_background_task(
                     ScheduleBackgroundTaskRequest {
                         label: String::from("hi"),
-                        interval: 1,
+                        interval: 15,
                     },
                     move || {
-                        h.notification()
-                            .create_channel(Channel::builder("test", "test").build())
-                            .expect("Failed to create channel");
                         h.notification()
                             .builder()
                             .channel_id("test")

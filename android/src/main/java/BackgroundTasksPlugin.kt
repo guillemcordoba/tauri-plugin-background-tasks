@@ -48,7 +48,6 @@ class BackgroundTasksPlugin(private val activity: Activity): Plugin(activity) {
             .build()
 
         val work = PeriodicWorkRequest.Builder(RunnerWorker::class.java, args.interval.toLong(), TimeUnit.MINUTES)
-            .setInitialDelay(args.interval.toLong(), TimeUnit.MINUTES)
             .addTag(args.label)
             .setInputData(data)
             .build()
